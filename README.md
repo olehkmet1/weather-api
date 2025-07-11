@@ -1,98 +1,96 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Weather API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A robust, developer-friendly weather and air quality API available on RapidAPI. Instantly fetch current weather, enriched summaries, forecasts, and air quality data by city or coordinates—no local installation required!
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+---
 
-## Description
+## Features
+- **Current Weather:** Get temperature, humidity, wind, pressure, visibility, dew point, and more.
+- **Enriched Summaries:** Human-friendly weather summaries and recommendations.
+- **Forecasts:** 5-day/3-hour weather forecast by city or coordinates.
+- **Air Quality:** Fetch air quality index and pollutant levels by city or coordinates.
+- **City Disambiguation:** Use country and state/region for precise city lookups.
+- **Interactive Docs:** Try endpoints directly on RapidAPI.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+---
 
-## Project setup
+## Getting Started on RapidAPI
 
-```bash
-$ npm install
-```
+1. **Go to the [Weather API on RapidAPI](https://rapidapi.com/)**
+2. **Subscribe to the API** (choose a free or paid plan as needed).
+3. **Get your RapidAPI key** from your user dashboard.
+4. **Use the API endpoints** directly from your app, website, or RapidAPI’s “Test Endpoint” feature.
 
-## Compile and run the project
+---
 
-```bash
-# development
-$ npm run start
+## Authentication
+- All requests require the `X-RapidAPI-Key` and `X-RapidAPI-Host` headers.
+- Example (using `curl`):
+  ```bash
+  curl -H "X-RapidAPI-Key: YOUR_RAPIDAPI_KEY" \
+       -H "X-RapidAPI-Host: your-rapidapi-host" \
+       "https://your-rapidapi-host/weather?city=London"
+  ```
+- You can also use the code snippets provided by RapidAPI for Node.js, Python, JavaScript, etc.
 
-# watch mode
-$ npm run start:dev
+---
 
-# production mode
-$ npm run start:prod
-```
+## API Endpoints
 
-## Run tests
+### **Weather Data**
+- `GET /weather?city=London`
+- `GET /weather?city=Dnipro&country=UA&state=Dnipropetrovsk Oblast`
+  - Returns raw weather data for a city, with optional country and state for disambiguation.
+- `GET /weather/summary?city=London`
+- `GET /weather/summary?city=Springfield&country=US&state=IL`
+  - Returns weather data plus a human-friendly summary and recommendation, with optional country and state for disambiguation.
 
-```bash
-# unit tests
-$ npm run test
+#### **Weather Data Fields**
+- `city`, `temperature`, `description`, `humidity`, `windSpeed`, `pressure`, `visibility`, `dewPoint`, `source`
+- `/summary` also returns: `summary`, `recommendation`
 
-# e2e tests
-$ npm run test:e2e
+### **Forecast**
+- `GET /weather/forecast?city=London`
+- `GET /weather/forecast?city=Dnipro&country=UA&state=Dnipropetrovsk Oblast`
+- `GET /weather/forecast?lat=51.51&lon=-0.13`
+  - Returns 5-day/3-hour forecast for a city or coordinates.
+  - Optional: `days` parameter (not used in free tier, default 5)
 
-# test coverage
-$ npm run test:cov
-```
+#### **Forecast Response Fields**
+- `city`: City name
+- `coord`: Coordinates
+- `forecast`: Array of forecast objects (see [OpenWeatherMap forecast docs](https://openweathermap.org/forecast5#json))
+- `source`: Data source
 
-## Deployment
+### **Air Quality**
+- `GET /weather/air-quality?city=London`
+- `GET /weather/air-quality?city=Dnipro&country=UA&state=Dnipropetrovsk Oblast`
+- `GET /weather/air-quality?lat=51.51&lon=-0.13`
+  - Returns air quality index and pollutant levels for a city or coordinates.
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+#### **Air Quality Fields**
+- `coord`, `aqi`, `components`, `source`
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+---
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
+## City Disambiguation
+- Use `country` (ISO 3166 code) and `state` (region/province/oblast) to specify the exact city for all endpoints.
+- Example: `city=Dnipro&country=UA&state=Dnipropetrovsk Oblast`
+- `state` is most reliable for US, Canada, Australia, India, Russia, China, Germany, Ukraine, Brazil, Mexico, and others.
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+---
 
-## Resources
+## Testing & Code Samples
+- Use the “Test Endpoint” feature on RapidAPI to try out requests in your browser.
+- RapidAPI provides ready-to-use code snippets for Node.js, Python, JavaScript, PHP, and more.
 
-Check out a few resources that may come in handy when working with NestJS:
+---
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+## Support & Questions
+- Use the Q&A or contact form on RapidAPI to reach the API provider.
+- For feature requests or bug reports, use the RapidAPI support tools.
 
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+---
 
 ## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+[MIT](LICENSE)

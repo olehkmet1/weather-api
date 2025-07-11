@@ -1,4 +1,4 @@
-import { Injectable, HttpException } from '@nestjs/common';
+import { Injectable, HttpException, UnauthorizedException } from '@nestjs/common';
 import axios from 'axios';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -55,8 +55,23 @@ export class AirQualityResponseDto {
 
 @Injectable()
 export class WeatherService {
-  async getWeatherByCity(city: string): Promise<WeatherResponseDto> {
+  async getWeatherByCity(city: string, country?: string, state?: string): Promise<WeatherResponseDto> {
+    const { lat, lon } = await this.getCoordsByCity(city, country, state);
     const apiKey = process.env.OPENWEATHERMAP_API_KEY;
+    if (!apiKey) {
+      // Scaffold: Return a 401-like response, but do not throw
+      return {
+        city,
+        temperature: null,
+        description: 'API key missing (scaffold)',
+        source: 'OpenWeatherMap',
+        humidity: null,
+        windSpeed: null,
+        pressure: null,
+        visibility: null,
+        dewPoint: null,
+      } as any;
+    }
     console.log('OPENWEATHERMAP_API_KEY:', apiKey ? apiKey.substring(0, 4) + '...' : 'NOT SET');
     if (!apiKey) {
       throw new HttpException('OpenWeatherMap API key not set', 500);
@@ -66,7 +81,8 @@ export class WeatherService {
         'https://api.openweathermap.org/data/2.5/weather',
         {
           params: {
-            q: city,
+            lat,
+            lon,
             appid: apiKey,
             units: 'metric',
           },
@@ -102,14 +118,36 @@ export class WeatherService {
     return parseFloat(((b * alpha) / (a - alpha)).toFixed(2));
   }
 
-  async getWeatherSummary(city: string): Promise<any> {
-    const weather = await this.getWeatherByCity(city);
+  async getWeatherSummary(city: string, country?: string, state?: string): Promise<any> {
+    const apiKey = process.env.OPENWEATHERMAP_API_KEY;
+    if (!apiKey) {
+      // Scaffold: Return a 401-like response, but do not throw
+      return {
+        city,
+        temperature: null,
+        description: 'API key missing (scaffold)',
+        humidity: null,
+        windSpeed: null,
+        pressure: null,
+        visibility: null,
+        dewPoint: null,
+        summary: null,
+        recommendation: null,
+        source: 'OpenWeatherMap',
+      };
+    }
+    const weather = await this.getWeatherByCity(city, country, state);
     const summary = this.generateSummary(weather);
     const recommendation = this.generateRecommendation(weather);
     return {
       city: weather.city,
       temperature: weather.temperature,
       description: weather.description,
+      humidity: weather.humidity,
+      windSpeed: weather.windSpeed,
+      pressure: weather.pressure,
+      visibility: weather.visibility,
+      dewPoint: weather.dewPoint,
       summary,
       recommendation,
       source: weather.source,
@@ -143,7 +181,14 @@ export class WeatherService {
   async getAirQualityByCoords(lat: string, lon: string): Promise<any> {
     const apiKey = process.env.OPENWEATHERMAP_API_KEY;
     if (!apiKey) {
-      throw new HttpException('OpenWeatherMap API key not set', 500);
+      // Scaffold: Return a 401-like response, but do not throw
+      return {
+        coord: { lat, lon },
+        aqi: null,
+        components: {},
+        source: 'OpenWeatherMap',
+        description: 'API key missing (scaffold)',
+      };
     }
     try {
       const response = await axios.get(
@@ -174,6 +219,49 @@ export class WeatherService {
   async getAirQualityByCity(city: string, country?: string, state?: string): Promise<any> {
     const { lat, lon } = await this.getCoordsByCity(city, country, state);
     return this.getAirQualityByCoords(lat, lon);
+  }
+
+  async getForecastByCity(city: string, country?: string, state?: string): Promise<any> {
+    const apiKey = process.env.OPENWEATHERMAP_API_KEY;
+    if (!apiKey) {
+      // Scaffold: Return a 401-like response, but do not throw
+      return { city, forecast: null, description: 'API key missing (scaffold)', source: 'OpenWeatherMap' };
+    }
+    const { lat, lon } = await this.getCoordsByCity(city, country, state);
+    return this.getForecastByCoords(lat, lon);
+  }
+
+  async getForecastByCoords(lat: string, lon: string): Promise<any> {
+    const apiKey = process.env.OPENWEATHERMAP_API_KEY;
+    if (!apiKey) {
+      // Scaffold: Return a 401-like response, but do not throw
+      return { coord: { lat, lon }, forecast: null, description: 'API key missing (scaffold)', source: 'OpenWeatherMap' };
+    }
+    try {
+      const response = await axios.get(
+        'https://api.openweathermap.org/data/2.5/forecast',
+        {
+          params: {
+            lat,
+            lon,
+            appid: apiKey,
+            units: 'metric',
+          },
+        },
+      );
+      const data = response.data;
+      return {
+        city: data.city.name,
+        coord: data.city.coord,
+        forecast: data.list,
+        source: 'OpenWeatherMap',
+      };
+    } catch (error) {
+      throw new HttpException(
+        error.response?.data?.message || 'Failed to fetch forecast data',
+        error.response?.status || 500,
+      );
+    }
   }
 
   private async getCoordsByCity(city: string, country?: string, state?: string): Promise<{ lat: string; lon: string }> {
