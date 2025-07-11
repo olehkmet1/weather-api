@@ -11,4 +11,10 @@ services:
       - key: PORT
         value: 10000
       - key: OPENWEATHERMAP_API_KEY
-        sync: false 
+        sync: false
+    # Free tier limitations:
+    # - Spins down after inactivity (wakes up on first request)
+    # - No SSH access
+    # - No scaling
+    # - No persistent disks
+    # - No one-off jobs 
