@@ -56,7 +56,6 @@ export class AirQualityResponseDto {
 @Injectable()
 export class WeatherService {
   async getWeatherByCity(city: string, country?: string, state?: string): Promise<WeatherResponseDto> {
-    const { lat, lon } = await this.getCoordsByCity(city, country, state);
     const apiKey = process.env.OPENWEATHERMAP_API_KEY;
     if (!apiKey) {
       // Scaffold: Return a 401-like response, but do not throw
@@ -73,9 +72,7 @@ export class WeatherService {
       } as any;
     }
     console.log('OPENWEATHERMAP_API_KEY:', apiKey ? apiKey.substring(0, 4) + '...' : 'NOT SET');
-    if (!apiKey) {
-      throw new HttpException('OpenWeatherMap API key not set', 500);
-    }
+    const { lat, lon } = await this.getCoordsByCity(city, country, state);
     try {
       const response = await axios.get(
         'https://api.openweathermap.org/data/2.5/weather',
@@ -217,6 +214,17 @@ export class WeatherService {
   }
 
   async getAirQualityByCity(city: string, country?: string, state?: string): Promise<any> {
+    const apiKey = process.env.OPENWEATHERMAP_API_KEY;
+    if (!apiKey) {
+      // Scaffold: Return a 401-like response, but do not throw
+      return {
+        coord: { lat: '51.5074', lon: '-0.1278' },
+        aqi: null,
+        components: {},
+        source: 'OpenWeatherMap',
+        description: 'API key missing (scaffold)',
+      };
+    }
     const { lat, lon } = await this.getCoordsByCity(city, country, state);
     return this.getAirQualityByCoords(lat, lon);
   }
@@ -227,8 +235,15 @@ export class WeatherService {
       // Scaffold: Return a 401-like response, but do not throw
       return { city, forecast: null, description: 'API key missing (scaffold)', source: 'OpenWeatherMap' };
     }
-    const { lat, lon } = await this.getCoordsByCity(city, country, state);
-    return this.getForecastByCoords(lat, lon);
+    try {
+      const { lat, lon } = await this.getCoordsByCity(city, country, state);
+      return this.getForecastByCoords(lat, lon);
+    } catch (error) {
+      throw new HttpException(
+        error.response?.data?.message || 'Failed to fetch forecast data',
+        error.response?.status || 500,
+      );
+    }
   }
 
   async getForecastByCoords(lat: string, lon: string): Promise<any> {

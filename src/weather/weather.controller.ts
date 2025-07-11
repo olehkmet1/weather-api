@@ -1,25 +1,10 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Query, HttpException, HttpStatus } from '@nestjs/common';
 import { WeatherService, WeatherResponseDto, WeatherSummaryResponseDto, AirQualityResponseDto } from './weather.service';
 import { ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { IsString, IsOptional, IsLatitude, IsLongitude, Length, ValidateIf, Validate, ValidatorConstraint, ValidatorConstraintInterface, ValidationArguments } from 'class-validator';
-import { Type } from 'class-transformer';
 import { ValidationPipe } from '@nestjs/common';
 import { CityQueryDto, AirQualityQueryDto, ForecastQueryDto } from './dto/weather.dto';
 
-@ValidatorConstraint({ name: 'CityOrCoords', async: false })
-class CityOrCoordsConstraint implements ValidatorConstraintInterface {
-  validate(_: any, args: ValidationArguments) {
-    const obj = args.object as any;
-    const hasCity = !!obj.city;
-    const hasCoords = obj.lat !== undefined && obj.lon !== undefined;
-    return (hasCity && !hasCoords) || (!hasCity && hasCoords);
-  }
-  defaultMessage(args: ValidationArguments) {
-    return 'Provide either city or both lat and lon, but not both.';
-  }
-}
-
-@ApiTags('weather')
+@ApiTags('Weather')
 @Controller('weather')
 export class WeatherController {
   constructor(private readonly weatherService: WeatherService) {}
@@ -61,7 +46,7 @@ export class WeatherController {
     } else if (query.lat !== undefined && query.lon !== undefined) {
       return this.weatherService.getAirQualityByCoords(query.lat.toString(), query.lon.toString());
     } else {
-      throw new Error('Provide either city or both lat and lon');
+      throw new HttpException('Provide either city or both lat and lon', HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -81,7 +66,7 @@ export class WeatherController {
     } else if (query.lat !== undefined && query.lon !== undefined) {
       return this.weatherService.getForecastByCoords(query.lat.toString(), query.lon.toString());
     } else {
-      throw new Error('Provide either city or both lat and lon');
+      throw new HttpException('Provide either city or both lat and lon', HttpStatus.BAD_REQUEST);
     }
   }
 } 
