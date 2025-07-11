@@ -28,14 +28,14 @@ Monitor environmental conditions:
 - Detailed pollutant breakdown (CO, NO2, O3, PM2.5, PM10, etc.)
 - Available by city or exact coordinates
 
-## 🚀 Getting Started (Local Development)
+## 🚀 Getting Started
 
 ### Prerequisites
 - Node.js (v16 or higher)
 - npm or yarn
 - OpenWeatherMap API key (free at [openweathermap.org](https://openweathermap.org/api))
 
-### Installation
+### Local Development
 
 1. **Clone the repository**
    ```bash
