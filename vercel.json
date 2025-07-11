@@ -8,6 +8,11 @@
   ],
   "routes": [
     {
+      "src": "/",
+      "dest": "/api",
+      "status": 301
+    },
+    {
       "src": "/(.*)",
       "dest": "src/main.ts"
     }
