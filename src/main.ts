@@ -40,16 +40,17 @@ async function bootstrap() {
     .build();
   
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('docs', app, document, {
+  SwaggerModule.setup('api', app, document, {
     swaggerOptions: {
       persistAuthorization: true,
     },
+    customSiteTitle: 'Weather API Documentation',
   });
 
   const port = process.env.PORT || 3000;
   await app.listen(port);
   
   console.log(`🚀 Weather API is running on: http://localhost:${port}`);
-  console.log(`📚 API Documentation: http://localhost:${port}/docs`);
+  console.log(`📚 API Documentation: http://localhost:${port}/api`);
 }
 bootstrap();
